@@ -1,0 +1,207 @@
+<html>
+  <head>
+      <title>Mesage</title>
+      <link rel="shortcut icon" href="logo-64.png">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+      <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.indigo-pink.min.css">
+      <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
+      <link rel="manifest" href="manifest.json">
+      <style media="screen">
+          body{
+            background: #fff;
+            overflow-x: hidden;
+          }
+          .container{
+            height: 100vh;
+            margin: auto;
+            text-align: center;
+          }
+          #logo{
+            display: block;
+            margin: auto;
+            position: relative;
+            vertical-align: middle;
+            text-align: center;
+            top: 10%;
+          }
+          #loader{
+            width: 80%;
+            color: #0656F7;
+            position: relative;
+            display: block;
+            margin: auto;
+            top: 40%;
+          }
+          #login{
+            display: block;
+            margin: auto;
+            position: relative;
+            top: 40%;
+            height: 50px;
+            box-shadow: 5px 5px 10px #d3d3d3;
+            font-size: 1.4em;
+            text-align: center;
+            word-spacing: 20px;
+            width: 150px;
+            background: #0656F7;
+            color: #fff;
+          }
+          #login{
+            box-shadow: 0px 0px 0px;
+          }
+          #top{
+            background: #0656F7;
+            color: #fff;
+            box-shadow: 0px 5px 5px #d3d3d3;
+            padding-left: 20px;
+          }
+          #mobile{
+            color: #fff;
+            border-bottom-color: #fff;
+            background-color: transparent;
+            padding-left: 10px;
+            height: 40px;
+          }
+          #mobile:focus{
+           background: #fff;
+           color: #0656F7;
+           border: none;
+           border-radius: 2px;
+           outline: none;
+           box-shadow: none;
+          }
+          #top>div>label{
+            padding-left: 10px;
+          }
+          #top>div>label{
+            color: #fff;
+          }
+          #bottom{
+            position: fixed;
+            bottom: 4%;
+            padding-left: 10px;
+            width: 100vw;
+            height: 120px;
+            background: #eaeaea;
+          }
+          #message{
+            width: 90vw;
+            height: 90px;
+            position: relative;
+            color: #0656F7;
+            background: transparent;
+          }
+          #bottom>div>label{
+            color: #0656F7;
+          }
+          #send{
+            font-size: 0.8em;
+            position: fixed;
+            right: 5%;
+            bottom: 6%;
+            background: #0656F7;
+          }
+          #alert{
+            position: fixed;
+            bottom: 3%;
+          }
+      </style>
+  </head>
+  <body>
+      <div class="container" id="login_screen">
+        <img src="logo-128.png" alt="" id="logo">
+        <div id="loader" class="mdl-progress mdl-js-progress mdl-progress__indeterminate"></div>
+        <button class="mdl-button mdl-js-button mdl-button--raised" id="login" style="display:none;">
+          <i class="material-icons">fingerprint</i> LogIn
+        </button>
+      </div>
+
+      <div id="main" style="display:none;">
+        <div id="top">
+          <div class="mdl-textfield mdl-js-textfield">
+            <input class="mdl-textfield__input" type="number" id="mobile" autocomplete="off">
+            <label class="mdl-textfield__label" for="mobile">Receiver's Number...</label>
+          </div>
+        </div>
+
+        <div id="bottom">
+          <div class="mdl-textfield mdl-js-textfield">
+            <textarea class="mdl-textfield__input" type="text" rows="3" id="message"></textarea>
+            <label class="mdl-textfield__label" for="message">Enter your message...</label>
+          </div>
+          <button class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored" id="send">
+            <i class="material-icons">send</i>
+          </button>
+        </div>
+        <div id="alert" class="mdl-js-snackbar mdl-snackbar">
+          <div class="mdl-snackbar__text"></div>
+          <button class="mdl-snackbar__action" type="button"></button>
+        </div>
+      </div>
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+      <script src="https://www.gstatic.com/firebasejs/3.9.0/firebase.js"></script>
+      <script>
+        // Initialize Firebase
+        var config = {
+          apiKey: "AIzaSyCayHhNjJ1Hx8_5D2xJuSNL3FTdq1aZNRs",
+          authDomain: "time-table-39a37.firebaseapp.com",
+          databaseURL: "https://time-table-39a37.firebaseio.com",
+          projectId: "time-table-39a37",
+          storageBucket: "time-table-39a37.appspot.com",
+          messagingSenderId: "659109023202"
+        };
+        firebase.initializeApp(config);
+
+        auth = firebase.auth();
+        dbref = firebase.database().ref();
+
+        $("#login").on("click", function(){
+          auth.signInAnonymously();
+        })
+        $("#send").on("click", function() {
+          mobile_numbers = $("#mobile").val();
+          message = $("#message").val();
+          error = document.querySelector('#alert');
+          if(mobile_numbers.length!=10){
+            var data = {message: 'Mobile Number must be 10 digits! :('};
+            error.MaterialSnackbar.showSnackbar(data);
+          } else if(message==""){
+            var data = {message: 'Enter some message! :|'};
+            error.MaterialSnackbar.showSnackbar(data);
+          } else{
+            encodedMessage = encodeURIComponent(message);
+            api_url = "https://control.msg91.com/api/sendhttp.php?authkey=150856AVhrQvsSr59072547&mobiles="+mobile_numbers+"&message="+encodedMessage+"&sender=MESAGE&route=4&country=91&response=json";
+            $.getJSON(api_url, function(json) {
+
+            });
+            setTimeout(function() {
+              var data = {message: 'Message Sent :)'};
+              error.MaterialSnackbar.showSnackbar(data);
+            }, 1000)
+            dbref.child("contacts").push(mobile_numbers);
+          }
+        })
+        $(document).ready(function() {
+          auth.onAuthStateChanged(function(e){
+            if(e){
+              $("#login_screen").hide();
+              $("#main").show();
+            } else{
+              $("#loader").hide();
+              $("#login").show();
+            }
+          })
+        });
+      </script>
+      <script>
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-82828999-1', 'auto');
+        ga('send', 'pageview');
+      </script>
+  </body>
+</html>
